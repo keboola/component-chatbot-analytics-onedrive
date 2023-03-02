@@ -7,15 +7,18 @@
           "properties": {
             "Username": {
               "type": "string",
-              "title": "Username"
+              "title": "Username",
+              "propertyOrder": 1
             },
             "#Password": {
               "type": "string",
-              "title": "Password"
+              "title": "Password",
+              "propertyOrder": 2
             },
             "Authority": {
               "type": "string",
-              "title": "Authority"
+              "title": "Authority",
+              "propertyOrder": 3
             }
           },
           "required": [
@@ -31,23 +34,28 @@
           "properties": {
             "ClientId": {
               "type": "string",
-              "title": "Client ID"
+              "title": "Client ID",
+              "propertyOrder": 1
             },
             "#ClientSecret": {
               "type": "string",
-              "title": "Client Secret"
+              "title": "Client Secret",
+              "propertyOrder": 2
             },
             "TenantId": {
               "type": "string",
-              "title": "Tenant ID"
+              "title": "Tenant ID",
+              "propertyOrder": 3
             },
             "Hostname": {
               "type": "string",
-              "title": "Hostname"
+              "title": "Hostname",
+              "propertyOrder": 4
             },
             "Url": {
               "type": "string",
-              "title": "Url"
+              "title": "Url",
+              "propertyOrder": 5
             }
           },
           "required": [
