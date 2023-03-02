@@ -68,7 +68,8 @@ class Component(ComponentBase):
         return str(date_of_processing)
 
     def get_input_files(self):
-        files = self.get_input_file_definitions_grouped_by_tag_group(only_latest_files=True)
+        files = self.get_input_file_definitions_grouped_by_tag_group(only_latest_files=True,
+                                                                     tags=["chatbot_analytics"])
         return files
 
     @staticmethod
