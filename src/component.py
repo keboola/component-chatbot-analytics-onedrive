@@ -46,6 +46,11 @@ class Component(ComponentBase):
         sharepoint_params = params["sharepoint"]
         o365_params = params["o365"]
 
+        self.process_files(main_folder_path=os.path.join(self.files_in_path, params["main_folder_path"]),
+                           date=params[KEY_DATE_OF_PROCESSING],
+                           operation_type=params[KEY_OPERATION_TYPE],
+                           params=params)
+
         self.get_token(sharepoint_params, o365_params)
 
         # create temp folder to store the token file in. The token name is random.
@@ -54,10 +59,7 @@ class Component(ComponentBase):
         account = self.authenticate_o365_account(o365_params)
         self.sharepoint_drive = self.get_sharepoint_drive(account, o365_params)
 
-        self.process_files(main_folder_path=os.path.join(self.files_in_path, params["main_folder_path"]),
-                           date=params[KEY_DATE_OF_PROCESSING],
-                           operation_type=params[KEY_OPERATION_TYPE],
-                           params=params)
+
 
     @staticmethod
     def get_date_of_processing(date):
