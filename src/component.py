@@ -59,8 +59,6 @@ class Component(ComponentBase):
         account = self.authenticate_o365_account(o365_params)
         self.sharepoint_drive = self.get_sharepoint_drive(account, o365_params)
 
-
-
     @staticmethod
     def get_date_of_processing(date):
         dt_str_1 = date
