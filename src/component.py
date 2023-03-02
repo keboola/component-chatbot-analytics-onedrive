@@ -46,10 +46,7 @@ class Component(ComponentBase):
         sharepoint_params = params["sharepoint"]
         o365_params = params["o365"]
 
-        self.process_files(main_folder_path=os.path.join(self.files_in_path, params["main_folder_path"]),
-                           date=params[KEY_DATE_OF_PROCESSING],
-                           operation_type=params[KEY_OPERATION_TYPE],
-                           params=params)
+        self.process_files(params)
 
         self.get_token(sharepoint_params, o365_params)
 
@@ -78,7 +75,10 @@ class Component(ComponentBase):
         new_date = date_obj - timedelta(days=1)
         return new_date.strftime('%Y-%m-%d')
 
-    def process_files(self, main_folder_path, date, operation_type, params):
+    def process_files(self, params):
+        date = params[KEY_DATE_OF_PROCESSING]
+        operation_type = params[KEY_OPERATION_TYPE]
+
         date_of_processing = self.get_date_of_processing(date)
         logging.info(f"Processing date: {date_of_processing}")
 
