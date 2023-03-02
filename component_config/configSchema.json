@@ -1,19 +1,66 @@
 {
   "type": "object",
   "title": "extractor configuration",
-  "required": [
-    "print_hello"
-  ],
   "properties": {
-    "print_hello": {
-      "type": "boolean",
-      "title": "Print Hello",
-      "propertyOrder": 1
-    },
-    "debug": {
-      "type": "boolean",
-      "title": "Debug",
-      "propertyOrder": 2
-    }
+        "Sharepoint": {
+          "type": "object",
+          "properties": {
+            "Username": {
+              "type": "string",
+              "title": "Username"
+            },
+            "#Password": {
+              "type": "string",
+              "title": "Password"
+            },
+            "Authority": {
+              "type": "string",
+              "title": "Authority"
+            },
+            "Debug": {
+              "type": "boolean",
+              "title": "Debug"
+            }
+          },
+          "required": [
+            "Username",
+            "#Password",
+            "Authority"
+          ],
+          "title": "Sharepoint"
+        },
+        "O365": {
+          "type": "object",
+          "properties": {
+            "ClientId": {
+              "type": "string",
+              "title": "Client ID"
+            },
+            "#ClientSecret": {
+              "type": "string",
+              "title": "Client Secret"
+            },
+            "TenantId": {
+              "type": "string",
+              "title": "Tenant ID"
+            },
+            "Hostname": {
+              "type": "string",
+              "title": "Hostname"
+            },
+            "Url": {
+              "type": "string",
+              "title": "Url"
+            }
+          },
+          "required": [
+            "ClientId",
+            "#ClientSecret",
+            "TenantId",
+            "Hostname",
+            "Url"
+          ],
+          "title": "O365"
+        }
   }
 }

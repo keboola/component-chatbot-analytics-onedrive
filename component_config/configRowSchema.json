@@ -1,1 +1,27 @@
-{}
+{
+  "type": "object",
+  "title": "extractor configuration",
+  "properties": {
+      "MainFolderPath": {
+        "type": "string",
+        "title": "Main Folder Path"
+      },
+      "OperationType": {
+        "type": "string",
+        "enum": [
+          "download",
+          "upload"
+        ],
+        "title": "Operation Type"
+      },
+      "FilenamePrefix": {
+        "type": "string",
+        "title": "Filename Prefix"
+      },
+      "DateOfProcessing": {
+        "type": "string",
+        "format": "date",
+        "title": "Date of Processing"
+      }
+  }
+}
