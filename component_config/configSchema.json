@@ -16,10 +16,6 @@
             "Authority": {
               "type": "string",
               "title": "Authority"
-            },
-            "Debug": {
-              "type": "boolean",
-              "title": "Debug"
             }
           },
           "required": [
@@ -27,7 +23,8 @@
             "#Password",
             "Authority"
           ],
-          "title": "Sharepoint"
+          "title": "Sharepoint",
+          "propertyOrder": 1
         },
         "O365": {
           "type": "object",
@@ -60,7 +57,8 @@
             "Hostname",
             "Url"
           ],
-          "title": "O365"
+          "title": "O365",
+          "propertyOrder": 2
         }
   }
 }

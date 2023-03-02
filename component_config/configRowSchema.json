@@ -4,7 +4,8 @@
   "properties": {
       "MainFolderPath": {
         "type": "string",
-        "title": "Main Folder Path"
+        "title": "Main Folder Path",
+        "propertyOrder": 1
       },
       "OperationType": {
         "type": "string",
@@ -12,16 +13,19 @@
           "download",
           "upload"
         ],
-        "title": "Operation Type"
+        "title": "Operation Type",
+        "propertyOrder": 2
       },
       "FilenamePrefix": {
         "type": "string",
-        "title": "Filename Prefix"
+        "title": "Filename Prefix",
+        "propertyOrder": 3
       },
       "DateOfProcessing": {
         "type": "string",
         "format": "date",
-        "title": "Date of Processing"
+        "title": "Date of Processing",
+        "propertyOrder": 4
       }
   }
 }
