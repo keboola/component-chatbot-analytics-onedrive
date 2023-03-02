@@ -18,6 +18,7 @@
             "authority": {
               "type": "string",
               "title": "Authority",
+              "default": "https://login.microsoftonline.com/{tenant_id}/",
               "propertyOrder": 3
             }
           },
@@ -50,11 +51,13 @@
             "hostname": {
               "type": "string",
               "title": "Hostname",
+              "default": "csincz.sharepoint.com",
               "propertyOrder": 4
             },
             "url": {
               "type": "string",
               "title": "Url",
+              "default": "/teams/Chatboti-konverzanciCS",
               "propertyOrder": 5
             }
           },
