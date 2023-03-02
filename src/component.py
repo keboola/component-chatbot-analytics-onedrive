@@ -23,7 +23,6 @@ KEY_URL = 'url'
 
 KEY_MAIN_FOLDER_PATH = 'main_folder_path'
 KEY_OPERATION_TYPE = 'operation_type'
-KEY_FILENAME_PREFIX = 'filename_prefix'
 KEY_DATE_OF_PROCESSING = 'date_of_processing'
 
 # list of mandatory parameters => if some is missing,
@@ -57,7 +56,6 @@ class Component(ComponentBase):
 
         self.process_files(main_folder_path=os.path.join(self.files_in_path, params["main_folder_path"]),
                            date=params[KEY_DATE_OF_PROCESSING],
-                           filename_prefix=params[KEY_FILENAME_PREFIX],
                            operation_type=params[KEY_OPERATION_TYPE],
                            params=params)
 
@@ -69,10 +67,9 @@ class Component(ComponentBase):
         date_of_processing, _ = parse_datetime_interval(dt_str_1, dt_str_2, dt_format)
         return str(date_of_processing)
 
-    @staticmethod
-    def list_files_with_prefix(folder_path, prefix):
-        files = os.listdir(folder_path)
-        return [f for f in files if f.startswith(prefix)]
+    def get_input_files(self):
+        files = self.get_input_file_definitions_grouped_by_tag_group(only_latest_files=True)
+        return files
 
     @staticmethod
     def subtract_one_day(date_string):
@@ -80,13 +77,14 @@ class Component(ComponentBase):
         new_date = date_obj - timedelta(days=1)
         return new_date.strftime('%Y-%m-%d')
 
-    def process_files(self, main_folder_path, date, filename_prefix, operation_type, params):
+    def process_files(self, main_folder_path, date, operation_type, params):
         date_of_processing = self.get_date_of_processing(date)
         logging.info(f"Processing date: {date_of_processing}")
 
         subfolder_path = os.path.join(main_folder_path, date_of_processing)
-        files = self.list_files_with_prefix(subfolder_path, filename_prefix)
+        files = self.get_input_files(subfolder_path)
         logging.info(f"Processing files: {files}")
+        exit()
 
         folder = params[KEY_MAIN_FOLDER_PATH] + date_of_processing
         if not folder.startswith("/"):
@@ -95,7 +93,7 @@ class Component(ComponentBase):
             if operation_type == "upload":
                 self.upload(folder_name=folder, file_name=file)
             elif operation_type == "download":
-                self.download(folder_name=folder, date_of_processing=date_of_processing, prefix=filename_prefix)
+                self.download(folder_name=folder)
             else:
                 raise UserException(f"Invalid operation type: {operation_type}")
 
@@ -114,15 +112,17 @@ class Component(ComponentBase):
 
         folder.upload_file(item=input_file_path)
 
-    def download(self, folder_name, date_of_processing, prefix):
-        """Downloads file with prefix and date from a folder with date+1 day
-        If the date of processing is 2023-01-01, a download path is 2023-01-01/2022-12-31
-        """
-        downloaded_file_name = prefix+self.subtract_one_day(date_of_processing)+".xlsx"
-        file_path = os.path.join(folder_name, downloaded_file_name)
-        logging.info(f"Downloading file: {file_path}")
-        file = self.sharepoint_drive.get_item_by_path(file_path)
-        file.download(to_path=self.files_out_path)
+    def download(self, folder_name):
+        """Downloads all files in a specified OneDrive folder."""
+        onedrive_folder = self.sharepoint_drive.get_item_by_path(folder_name)
+        for f in onedrive_folder.get_items():
+            file_path = os.path.join(folder_name, f)
+            logging.info(f"Downloading file: {f}")
+            file = self.sharepoint_drive.get_item_by_path(file_path)
+            file.download(to_path=self.files_out_path)
+
+            file_def = self.create_out_file_definition(name=f, tags=["chatbot_analytics"])
+            self.write_manifest(file_def)
 
     @staticmethod
     def get_sharepoint_drive(account, o365_params):
