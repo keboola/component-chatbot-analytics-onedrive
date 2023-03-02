@@ -2,12 +2,12 @@
   "type": "object",
   "title": "Application row configuration",
   "properties": {
-      "MainFolderPath": {
+      "main_folder_path": {
         "type": "string",
         "title": "Main Folder Path",
         "propertyOrder": 1
       },
-      "OperationType": {
+      "operation_type": {
         "type": "string",
         "enum": [
           "download",
@@ -16,12 +16,12 @@
         "title": "Operation Type",
         "propertyOrder": 2
       },
-      "FilenamePrefix": {
+      "filename_prefix": {
         "type": "string",
         "title": "Filename Prefix",
         "propertyOrder": 3
       },
-      "DateOfProcessing": {
+      "date_of_processing": {
         "type": "string",
         "title": "Date of Processing",
         "propertyOrder": 4

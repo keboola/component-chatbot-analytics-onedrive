@@ -2,70 +2,70 @@
   "type": "object",
   "title": "Application configuration",
   "properties": {
-        "Sharepoint": {
+        "sharepoint": {
           "type": "object",
           "properties": {
-            "Username": {
+            "username": {
               "type": "string",
               "title": "Username",
               "propertyOrder": 1
             },
-            "#Password": {
+            "#password": {
               "type": "string",
               "title": "Password",
               "propertyOrder": 2
             },
-            "Authority": {
+            "authority": {
               "type": "string",
               "title": "Authority",
               "propertyOrder": 3
             }
           },
           "required": [
-            "Username",
-            "#Password",
-            "Authority"
+            "username",
+            "#password",
+            "authority"
           ],
           "title": "Sharepoint",
           "propertyOrder": 1
         },
-        "O365": {
+        "o365": {
           "type": "object",
           "properties": {
-            "ClientId": {
+            "client_id": {
               "type": "string",
               "title": "Client ID",
               "propertyOrder": 1
             },
-            "#ClientSecret": {
+            "client_secret": {
               "type": "string",
               "title": "Client Secret",
               "propertyOrder": 2
             },
-            "TenantId": {
+            "tenant_id": {
               "type": "string",
               "title": "Tenant ID",
               "propertyOrder": 3
             },
-            "Hostname": {
+            "hostname": {
               "type": "string",
               "title": "Hostname",
               "propertyOrder": 4
             },
-            "Url": {
+            "url": {
               "type": "string",
               "title": "Url",
               "propertyOrder": 5
             }
           },
           "required": [
-            "ClientId",
-            "#ClientSecret",
-            "TenantId",
-            "Hostname",
-            "Url"
+            "client_id",
+            "#client_secret",
+            "tenant_id",
+            "hostname",
+            "url"
           ],
-          "title": "O365",
+          "title": "Office 365",
           "propertyOrder": 2
         }
   }
