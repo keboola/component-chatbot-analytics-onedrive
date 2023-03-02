@@ -23,7 +23,6 @@
       },
       "DateOfProcessing": {
         "type": "string",
-        "format": "date",
         "title": "Date of Processing",
         "propertyOrder": 4
       }
