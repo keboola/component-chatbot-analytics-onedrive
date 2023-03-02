@@ -1,6 +1,7 @@
 import logging
 import os
 import uuid
+from datetime import datetime, timedelta
 
 import msal
 from O365 import Account, FileSystemTokenBackend
@@ -36,7 +37,7 @@ class Component(ComponentBase):
         super().__init__()
         self.sharepoint_drive = None
         self.token_file_name = str(uuid.uuid4())
-        self.scopes = ["Files.ReadWrite.All", "offline_access"]
+        self.scopes = ["Files.ReadWrite.All"]
 
     def run(self):
 
@@ -46,7 +47,7 @@ class Component(ComponentBase):
         sharepoint_params = params["sharepoint"]
         o365_params = params["o365"]
 
-        self.get_token(sharepoint_params)
+        self.get_token(sharepoint_params, o365_params)
 
         # create temp folder to store the token file in. The token name is random.
         self.create_temp_folder()
@@ -73,10 +74,20 @@ class Component(ComponentBase):
         files = os.listdir(folder_path)
         return [f for f in files if f.startswith(prefix)]
 
+    @staticmethod
+    def subtract_one_day(date_string):
+        date_obj = datetime.strptime(date_string, '%Y-%m-%d')
+        new_date = date_obj - timedelta(days=1)
+        return new_date.strftime('%Y-%m-%d')
+
     def process_files(self, main_folder_path, date, filename_prefix, operation_type, params):
         date_of_processing = self.get_date_of_processing(date)
+        logging.info(f"Processing date: {date_of_processing}")
+
         subfolder_path = os.path.join(main_folder_path, date_of_processing)
         files = self.list_files_with_prefix(subfolder_path, filename_prefix)
+        logging.info(f"Processing files: {files}")
+
         folder = params[KEY_MAIN_FOLDER_PATH] + date_of_processing
         if not folder.startswith("/"):
             folder = "/" + folder
@@ -84,20 +95,34 @@ class Component(ComponentBase):
             if operation_type == "upload":
                 self.upload(folder_name=folder, file_name=file)
             elif operation_type == "download":
-                self.download(folder_name=folder, file_name=file, to_path=self.files_out_path)
+                self.download(folder_name=folder, date_of_processing=date_of_processing, prefix=filename_prefix)
             else:
                 raise UserException(f"Invalid operation type: {operation_type}")
 
     def upload(self, folder_name, file_name):
         """Uploads file_name Sharepoint folder_name (with '/')"""
-        folder = self.sharepoint_drive.get_item_by_path('/' + folder_name)
-        folder.upload_file(item=file_name)
+        folder = self.sharepoint_drive.get_item_by_path(folder_name)
+        input_file_path = os.path.join(self.files_in_path, file_name)
+        logging.info(f"Uploading file: {file_name}")
 
-    def download(self, folder_name, file_name, to_path):
-        """Downloads file_name from Sharepoint folder_name (with "/") to to_path folder"""
-        folder_name = folder_name + file_name
-        file = self.sharepoint_drive.get_item_by_path('/' + folder_name)
-        file.download(to_path=to_path)
+        # Create OneDrive folder if it does not exist
+        try:
+            logging.info(f"Trying to create new folder: {folder_name}")
+            folder.create_child_folder(folder_name)
+        except Exception as e:
+            logging.error(f"Cannot create new folder {folder_name}, exception: {e}")
+
+        folder.upload_file(item=input_file_path)
+
+    def download(self, folder_name, date_of_processing, prefix):
+        """Downloads file with prefix and date from a folder with date+1 day
+        If the date of processing is 2023-01-01, a download path is 2023-01-01/2022-12-31
+        """
+        downloaded_file_name = prefix+self.subtract_one_day(date_of_processing)+".xlsx"
+        file_path = os.path.join(folder_name, downloaded_file_name)
+        logging.info(f"Downloading file: {file_path}")
+        file = self.sharepoint_drive.get_item_by_path(file_path)
+        file.download(to_path=self.files_out_path)
 
     @staticmethod
     def get_sharepoint_drive(account, o365_params):
@@ -121,11 +146,11 @@ class Component(ComponentBase):
         if not os.path.exists(temp_folder_path):
             os.makedirs(temp_folder_path)
 
-    def get_token(self, sharepoint_params):
+    def get_token(self, sharepoint_params, o365_params):
         """Retrieves and saves the token to temp folder with random filename generated with uuid."""
 
         # Create a preferably long-lived app instance which maintains a token cache.
-        app = msal.PublicClientApplication(sharepoint_params[KEY_CLIENT_ID],
+        app = msal.PublicClientApplication(o365_params[KEY_CLIENT_ID],
                                            authority=sharepoint_params[KEY_AUTHORITY])
 
         result = None
@@ -142,13 +167,15 @@ class Component(ComponentBase):
             # https://github.com/AzureAD/microsoft-authentication-library-for-python/wiki/Username-Password-Authentication
             result = app.acquire_token_by_username_password(
                 sharepoint_params[KEY_USERNAME], sharepoint_params[KEY_PASSWORD],
-                scopes=sharepoint_params[self.scopes])
+                scopes=self.scopes)
 
         token = str(result).replace('\'', '"')
         if not token:
             raise UserException("Cannot retrieve token.")
 
-        with open(self.token_file_name, 'w') as f:
+        temp_path = os.path.join(self.data_folder_path, "temp")
+        token_path = os.path.join(temp_path, self.token_file_name)
+        with open(token_path, 'w') as f:
             f.write(token)
 
 
