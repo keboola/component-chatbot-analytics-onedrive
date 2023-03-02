@@ -81,21 +81,20 @@ class Component(ComponentBase):
         date_of_processing = self.get_date_of_processing(date)
         logging.info(f"Processing date: {date_of_processing}")
 
-        subfolder_path = os.path.join(main_folder_path, date_of_processing)
-        files = self.get_input_files(subfolder_path)
-        logging.info(f"Processing files: {files}")
-        exit()
-
         folder = params[KEY_MAIN_FOLDER_PATH] + date_of_processing
         if not folder.startswith("/"):
             folder = "/" + folder
-        for file in files:
-            if operation_type == "upload":
+
+        if operation_type == "upload":
+            files = self.get_input_files()
+            print(files)
+            exit()
+            for file in files:
                 self.upload(folder_name=folder, file_name=file)
-            elif operation_type == "download":
-                self.download(folder_name=folder)
-            else:
-                raise UserException(f"Invalid operation type: {operation_type}")
+        elif operation_type == "download":
+            self.download(folder_name=folder)
+        else:
+            raise UserException(f"Invalid operation type: {operation_type}")
 
     def upload(self, folder_name, file_name):
         """Uploads file_name Sharepoint folder_name (with '/')"""
