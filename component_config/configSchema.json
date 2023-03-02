@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "title": "extractor configuration",
+  "title": "Application configuration",
   "properties": {
         "Sharepoint": {
           "type": "object",

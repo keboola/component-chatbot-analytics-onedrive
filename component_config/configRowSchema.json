@@ -1,6 +1,6 @@
 {
   "type": "object",
-  "title": "extractor configuration",
+  "title": "Application row configuration",
   "properties": {
       "MainFolderPath": {
         "type": "string",
