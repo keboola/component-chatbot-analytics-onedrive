@@ -2,6 +2,7 @@ import logging
 import os
 import uuid
 from datetime import datetime, timedelta
+import re
 
 import msal
 from O365 import Account, FileSystemTokenBackend
@@ -65,8 +66,7 @@ class Component(ComponentBase):
         return str(date_of_processing)
 
     def get_input_files(self):
-        files = self.get_input_file_definitions_grouped_by_tag_group(only_latest_files=True,
-                                                                     tags=["chatbot_analytics"])
+        files = self.get_input_files_definitions(only_latest_files=True, tags=["chatbot_analytics"])
         return files
 
     @staticmethod
@@ -74,6 +74,15 @@ class Component(ComponentBase):
         date_obj = datetime.strptime(date_string, '%Y-%m-%d')
         new_date = date_obj - timedelta(days=1)
         return new_date.strftime('%Y-%m-%d')
+
+    @staticmethod
+    def extract_date(string):
+        pattern = r'\d{4}_\d{2}_\d{2}'  # regex pattern to match date format yyyy_mm_dd
+        match = re.search(pattern, string)
+        if match:
+            return match.group()
+        else:
+            return None
 
     def process_files(self, params):
         date = params[KEY_DATE_OF_PROCESSING]
@@ -88,10 +97,10 @@ class Component(ComponentBase):
 
         if operation_type == "upload":
             files = self.get_input_files()
-            print(files)
-            exit()
             for file in files:
-                self.upload(folder_name=folder, file_name=file)
+                filename_date = self.extract_date(file.name)
+                if self.subtract_one_day(date_of_processing) == filename_date:
+                    self.upload(folder_name=folder, file_name=file.name)
         elif operation_type == "download":
             self.download(folder_name=folder)
         else:
