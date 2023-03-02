@@ -5,6 +5,7 @@
       "main_folder_path": {
         "type": "string",
         "title": "Main Folder Path",
+        "default": "Chatbot_Maintenance/KCP/Maintenance/",
         "propertyOrder": 1
       },
       "operation_type": {
