@@ -17,11 +17,6 @@
         "title": "Operation Type",
         "propertyOrder": 2
       },
-      "filename_prefix": {
-        "type": "string",
-        "title": "Filename Prefix",
-        "propertyOrder": 3
-      },
       "date_of_processing": {
         "type": "string",
         "title": "Date of Processing",

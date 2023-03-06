@@ -13,6 +13,7 @@ from keboola.utils import parse_datetime_interval
 
 # configuration variables
 KEY_SHAREPOINT = 'sharepoint'
+KEY_O365 = 'o365'
 KEY_CLIENT_ID = 'client_id'
 KEY_CLIENT_SECRET = '#client_secret'
 KEY_TENANT_ID = 'tenant_id'
@@ -28,7 +29,7 @@ KEY_DATE_OF_PROCESSING = 'date_of_processing'
 
 # list of mandatory parameters => if some is missing,
 # component will fail with readable message on initialization.
-REQUIRED_PARAMETERS = [KEY_SHAREPOINT]
+REQUIRED_PARAMETERS = [KEY_SHAREPOINT, KEY_O365]
 
 
 class Component(ComponentBase):
@@ -43,11 +44,11 @@ class Component(ComponentBase):
 
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         params = self.configuration.parameters
-
-        sharepoint_params = params["sharepoint"]
-        o365_params = params["o365"]
-
-        self.process_files(params)
+        date_of_processing = params[KEY_DATE_OF_PROCESSING]
+        operation_type = params[KEY_OPERATION_TYPE]
+        main_folder_path = params[KEY_MAIN_FOLDER_PATH]
+        sharepoint_params = params[KEY_SHAREPOINT]
+        o365_params = params[KEY_O365]
 
         self.get_token(sharepoint_params, o365_params)
 
@@ -56,6 +57,7 @@ class Component(ComponentBase):
 
         account = self.authenticate_o365_account(o365_params)
         self.sharepoint_drive = self.get_sharepoint_drive(account, o365_params)
+        self.process_files(date_of_processing, operation_type, main_folder_path)
 
     @staticmethod
     def get_date_of_processing(date):
@@ -84,14 +86,12 @@ class Component(ComponentBase):
         else:
             return None
 
-    def process_files(self, params):
-        date = params[KEY_DATE_OF_PROCESSING]
-        operation_type = params[KEY_OPERATION_TYPE]
+    def process_files(self, date_of_processing, operation_type, main_folder_path):
 
-        date_of_processing = self.get_date_of_processing(date)
+        date_of_processing = self.get_date_of_processing(date_of_processing)
         logging.info(f"Processing date: {date_of_processing}")
 
-        folder = params[KEY_MAIN_FOLDER_PATH] + date_of_processing
+        folder = main_folder_path + date_of_processing
         if not folder.startswith("/"):
             folder = "/" + folder
 
