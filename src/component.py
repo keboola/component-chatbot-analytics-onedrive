@@ -47,7 +47,7 @@ class Component(ComponentBase):
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         params = self.configuration.parameters
         date_from = params[KEY_DATE_FROM]
-        key_date_to = params[KEY_DATE_TO]
+        date_to = params[KEY_DATE_TO]
         operation_type = params[KEY_OPERATION_TYPE]
         main_folder_path = params[KEY_MAIN_FOLDER_PATH]
         sharepoint_params = params[KEY_SHAREPOINT]
@@ -61,7 +61,10 @@ class Component(ComponentBase):
         self.sharepoint_drive = self.get_sharepoint_drive(account, o365_params)
 
         dt_format = '%Y_%m_%d'
-        start_date, end_date = parse_datetime_interval(date_from, key_date_to, dt_format)
+        try:
+            start_date, end_date = parse_datetime_interval(date_from, date_to, dt_format)
+        except TypeError:
+            raise UserException(f"Unsupported date strings: {date_from}, {date_to}")
         start_date = self.get_datetime(start_date)
         end_date = self.get_datetime(end_date)
 
