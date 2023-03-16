@@ -65,6 +65,9 @@ class Component(ComponentBase):
             start_date, end_date = parse_datetime_interval(date_from, date_to, dt_format)
         except TypeError:
             raise UserException(f"Unsupported date strings: {date_from}, {date_to}")
+        except ValueError as e:
+            raise e
+
         start_date = self.get_datetime(start_date)
         end_date = self.get_datetime(end_date)
 
