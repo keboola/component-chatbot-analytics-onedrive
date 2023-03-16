@@ -50,10 +50,9 @@ class Component(ComponentBase):
         sharepoint_params = params[KEY_SHAREPOINT]
         o365_params = params[KEY_O365]
 
-        self.get_token(sharepoint_params, o365_params)
-
         # create temp folder to store the token file in. The token name is random.
         self.create_temp_folder()
+        self.get_token(sharepoint_params, o365_params)
 
         account = self.authenticate_o365_account(o365_params)
         self.sharepoint_drive = self.get_sharepoint_drive(account, o365_params)
