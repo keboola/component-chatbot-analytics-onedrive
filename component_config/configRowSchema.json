@@ -21,15 +21,22 @@
         "type": "string",
         "title": "Date From",
         "default": "1 day ago",
-        "description": "Enter relative day (X days ago) or specific date in YYYY_MM_DD format.",
+        "description": "Enter relative day (X days ago) or specific date in YYYY-MM-DD format.",
         "propertyOrder": 3
       },
     "date_to": {
         "type": "string",
         "title": "Date To",
-        "default": "1 day ago",
-        "description": "Enter relative day (X days ago) or specific date in YYYY_MM_DD format.",
+        "default": "today",
+        "description": "Enter relative day (X days ago) or specific date in YYYY-MM-DD format.",
         "propertyOrder": 4
+      },
+        "folder_suffix": {
+        "type": "string",
+        "title": "Folder Suffix",
+        "default": "_Maintenance",
+        "description": "String that will be appended to folder names for both download and upload.",
+        "propertyOrder": 5
       }
   }
 }

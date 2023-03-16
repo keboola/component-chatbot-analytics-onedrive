@@ -23,6 +23,7 @@ KEY_PASSWORD = '#password'
 KEY_AUTHORITY = 'authority'
 KEY_HOSTNAME = 'hostname'
 KEY_URL = 'url'
+KEY_FOLDER_SUFFIX = 'folder_suffix'
 
 KEY_MAIN_FOLDER_PATH = 'main_folder_path'
 KEY_OPERATION_TYPE = 'operation_type'
@@ -52,6 +53,7 @@ class Component(ComponentBase):
         main_folder_path = params[KEY_MAIN_FOLDER_PATH]
         sharepoint_params = params[KEY_SHAREPOINT]
         o365_params = params[KEY_O365]
+        folder_suffix = params[KEY_FOLDER_SUFFIX]
 
         # create temp folder to store the token file in. The token name is random.
         self.create_temp_folder()
@@ -60,7 +62,7 @@ class Component(ComponentBase):
         account = self.authenticate_o365_account(o365_params)
         self.sharepoint_drive = self.get_sharepoint_drive(account, o365_params)
 
-        dt_format = '%Y_%m_%d'
+        dt_format = '%Y-%m-%d'
         try:
             start_date, end_date = parse_datetime_interval(date_from, date_to, dt_format)
         except TypeError:
@@ -74,21 +76,21 @@ class Component(ComponentBase):
         days_to_process = self.get_dates_between(start_date, end_date)
         for day in days_to_process:
             logging.info(f"Processing date: {day}")
-            self.process_files(day, operation_type, main_folder_path)
+            self.process_files(day, operation_type, main_folder_path, folder_suffix)
 
     @staticmethod
     def get_dates_between(start_date, end_date):
         dates = []
         current_date = start_date
         while current_date <= end_date:
-            date_str = current_date.strftime('%Y_%m_%d')
+            date_str = current_date.strftime('%Y-%m-%d')
             dates.append(date_str)
             current_date += timedelta(days=1)
         return dates
 
     @staticmethod
     def get_datetime(date_str):
-        year, month, day = map(int, date_str.split("_"))
+        year, month, day = map(int, date_str.split("-"))
         return date(year, month, day)
 
     def get_input_files(self):
@@ -97,24 +99,27 @@ class Component(ComponentBase):
 
     @staticmethod
     def subtract_one_day(date_string):
-        date_obj = datetime.strptime(date_string, '%Y_%m_%d')
+        date_obj = datetime.strptime(date_string, '%Y-%m-%d')
         new_date = date_obj - timedelta(days=1)
-        return new_date.strftime('%Y_%m_%d')
+        return new_date.strftime('%Y-%m-%d')
 
     @staticmethod
     def extract_date(string):
-        pattern = r'\d{4}_\d{2}_\d{2}'  # regex pattern to match date format yyyy_mm_dd
+        pattern = r'\d{4}-\d{2}-\d{2}'  # regex pattern to match date format yyyy_mm_dd
         match = re.search(pattern, string)
         if match:
             return match.group()
         else:
             return None
 
-    def process_files(self, date_of_processing, operation_type, main_folder_path):
+    def process_files(self, date_of_processing, operation_type, main_folder_path, folder_suffix):
 
         folder = main_folder_path + date_of_processing
         if not folder.startswith("/"):
             folder = "/"+folder
+
+        if folder_suffix:
+            folder = folder + folder_suffix
 
         if operation_type == "upload":
             files = self.get_input_files()
