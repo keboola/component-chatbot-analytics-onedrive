@@ -92,6 +92,8 @@ class Component(ComponentBase):
         logging.info(f"Processing date: {date_of_processing}")
 
         folder = main_folder_path + date_of_processing
+        if not folder.startswith("/"):
+            folder = "/"+folder
 
         if operation_type == "upload":
             files = self.get_input_files()
