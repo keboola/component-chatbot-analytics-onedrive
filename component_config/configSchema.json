@@ -58,7 +58,7 @@
             "url": {
               "type": "string",
               "title": "Url",
-              "default": "/teams/Chatboti-konverzanciCS",
+              "default": "sites/Chatboti-konverzanciCS",
               "propertyOrder": 5
             }
           },

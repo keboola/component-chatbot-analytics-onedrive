@@ -20,6 +20,8 @@
       "date_of_processing": {
         "type": "string",
         "title": "Date of Processing",
+        "default": "1 day ago",
+        "description": "Enter relative day (X days ago) or specific date in YYYY_MM_DD format.",
         "propertyOrder": 4
       }
   }
