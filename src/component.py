@@ -101,7 +101,7 @@ class Component(ComponentBase):
     def subtract_one_day(date_string):
         date_obj = datetime.strptime(date_string, '%Y-%m-%d')
         new_date = date_obj - timedelta(days=1)
-        return new_date.strftime('%Y-%m-%d')
+        return new_date.strftime('%Y_%m_%d')
 
     @staticmethod
     def extract_date(string):
@@ -125,7 +125,6 @@ class Component(ComponentBase):
             files = self.get_input_files()
             for file in files:
                 filename_date = self.extract_date(file.name)
-                print(self.subtract_one_day(date_of_processing), filename_date)
                 if self.subtract_one_day(date_of_processing) == filename_date:
                     self.upload(folder_name=folder, file=file)
         elif operation_type == "download":
