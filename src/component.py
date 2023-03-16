@@ -138,13 +138,14 @@ class Component(ComponentBase):
         """Downloads all files in a specified OneDrive folder."""
         onedrive_folder = self.sharepoint_drive.get_item_by_path(folder_name)
         for f in onedrive_folder.get_items():
-            file_path = os.path.join(folder_name, f)
-            logging.info(f"Downloading file: {f}")
-            file = self.sharepoint_drive.get_item_by_path(file_path)
-            file.download(to_path=self.files_out_path)
+            if f.is_file:
+                file_path = os.path.join(folder_name, f.name)
+                logging.info(f"Downloading file: {f.name}")
+                file = self.sharepoint_drive.get_item_by_path(file_path)
+                file.download(to_path=self.files_out_path)
 
-            file_def = self.create_out_file_definition(name=f, tags=["chatbot_analytics"])
-            self.write_manifest(file_def)
+                file_def = self.create_out_file_definition(name=f.name, tags=["chatbot_analytics"])
+                self.write_manifest(file_def)
 
     @staticmethod
     def get_sharepoint_drive(account, o365_params):
