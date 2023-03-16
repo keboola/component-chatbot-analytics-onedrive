@@ -1,7 +1,7 @@
 import logging
 import os
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import re
 
 import msal
@@ -26,7 +26,8 @@ KEY_URL = 'url'
 
 KEY_MAIN_FOLDER_PATH = 'main_folder_path'
 KEY_OPERATION_TYPE = 'operation_type'
-KEY_DATE_OF_PROCESSING = 'date_of_processing'
+KEY_DATE_FROM = 'date_from'
+KEY_DATE_TO = 'date_to'
 
 # list of mandatory parameters => if some is missing,
 # component will fail with readable message on initialization.
@@ -45,7 +46,8 @@ class Component(ComponentBase):
 
         self.validate_configuration_parameters(REQUIRED_PARAMETERS)
         params = self.configuration.parameters
-        date_of_processing = params[KEY_DATE_OF_PROCESSING]
+        date_from = params[KEY_DATE_FROM]
+        key_date_to = params[KEY_DATE_TO]
         operation_type = params[KEY_OPERATION_TYPE]
         main_folder_path = params[KEY_MAIN_FOLDER_PATH]
         sharepoint_params = params[KEY_SHAREPOINT]
@@ -57,15 +59,31 @@ class Component(ComponentBase):
 
         account = self.authenticate_o365_account(o365_params)
         self.sharepoint_drive = self.get_sharepoint_drive(account, o365_params)
-        self.process_files(date_of_processing, operation_type, main_folder_path)
+
+        dt_format = '%Y_%m_%d'
+        start_date, end_date = parse_datetime_interval(date_from, key_date_to, dt_format)
+        start_date = self.get_datetime(start_date)
+        end_date = self.get_datetime(end_date)
+
+        days_to_process = self.get_dates_between(start_date, end_date)
+        for day in days_to_process:
+            logging.info(f"Processing date: {day}")
+            self.process_files(day, operation_type, main_folder_path)
 
     @staticmethod
-    def get_date_of_processing(date):
-        dt_str_1 = date
-        dt_str_2 = "today"
-        dt_format = "%Y_%m_%d"
-        date_of_processing, _ = parse_datetime_interval(dt_str_1, dt_str_2, dt_format)
-        return str(date_of_processing)
+    def get_dates_between(start_date, end_date):
+        dates = []
+        current_date = start_date
+        while current_date <= end_date:
+            date_str = current_date.strftime('%Y_%m_%d')
+            dates.append(date_str)
+            current_date += timedelta(days=1)
+        return dates
+
+    @staticmethod
+    def get_datetime(date_str):
+        year, month, day = map(int, date_str.split("_"))
+        return date(year, month, day)
 
     def get_input_files(self):
         files = self.get_input_files_definitions(only_latest_files=True, tags=["chatbot_analytics"])
@@ -87,9 +105,6 @@ class Component(ComponentBase):
             return None
 
     def process_files(self, date_of_processing, operation_type, main_folder_path):
-
-        date_of_processing = self.get_date_of_processing(date_of_processing)
-        logging.info(f"Processing date: {date_of_processing}")
 
         folder = main_folder_path + date_of_processing
         if not folder.startswith("/"):
@@ -138,16 +153,22 @@ class Component(ComponentBase):
 
     def download(self, folder_name):
         """Downloads all files in a specified OneDrive folder."""
-        onedrive_folder = self.sharepoint_drive.get_item_by_path(folder_name)
-        for f in onedrive_folder.get_items():
-            if f.is_file:
-                file_path = os.path.join(folder_name, f.name)
-                logging.info(f"Downloading file: {f.name}")
-                file = self.sharepoint_drive.get_item_by_path(file_path)
-                file.download(to_path=self.files_out_path)
+        try:
+            onedrive_folder = self.sharepoint_drive.get_item_by_path(folder_name)
+        except requests.exceptions.HTTPError:
+            logging.info(f"Folder {folder_name} not found on server.")
+            onedrive_folder = None
 
-                file_def = self.create_out_file_definition(name=f.name, tags=["chatbot_analytics"])
-                self.write_manifest(file_def)
+        if onedrive_folder:
+            for f in onedrive_folder.get_items():
+                if f.is_file:
+                    file_path = os.path.join(folder_name, f.name)
+                    logging.info(f"Downloading file: {f.name}")
+                    file = self.sharepoint_drive.get_item_by_path(file_path)
+                    file.download(to_path=self.files_out_path)
+
+                    file_def = self.create_out_file_definition(name=f.name, tags=["chatbot_analytics"])
+                    self.write_manifest(file_def)
 
     @staticmethod
     def get_sharepoint_drive(account, o365_params):

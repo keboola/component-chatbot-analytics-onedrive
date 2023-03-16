@@ -17,9 +17,16 @@
         "title": "Operation Type",
         "propertyOrder": 2
       },
-      "date_of_processing": {
+      "date_from": {
         "type": "string",
-        "title": "Date of Processing",
+        "title": "Date From",
+        "default": "1 day ago",
+        "description": "Enter relative day (X days ago) or specific date in YYYY_MM_DD format.",
+        "propertyOrder": 4
+      },
+    "date_to": {
+        "type": "string",
+        "title": "Date To",
         "default": "1 day ago",
         "description": "Enter relative day (X days ago) or specific date in YYYY_MM_DD format.",
         "propertyOrder": 4
