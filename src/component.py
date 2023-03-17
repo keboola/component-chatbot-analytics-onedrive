@@ -41,6 +41,8 @@ class Component(ComponentBase):
         self.sharepoint_drive = None
         self.token_file_name = str(uuid.uuid4())
         self.scopes = ["Files.ReadWrite.All"]
+        # set logging level
+        logging.getLogger('O365.drive').setLevel(logging.CRITICAL)
 
     def run(self):
 
