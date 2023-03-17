@@ -1,13 +1,12 @@
 import logging
 import os
+import re
 import uuid
 from datetime import datetime, timedelta, date
-import re
 
 import msal
 import requests.exceptions
 from O365 import Account, FileSystemTokenBackend
-
 from keboola.component.base import ComponentBase
 from keboola.component.exceptions import UserException
 from keboola.utils import parse_datetime_interval
@@ -42,6 +41,8 @@ class Component(ComponentBase):
         self.sharepoint_drive = None
         self.token_file_name = str(uuid.uuid4())
         self.scopes = ["Files.ReadWrite.All"]
+        # set logging level
+        logging.getLogger('O365.drive').setLevel(logging.CRITICAL)
 
     def run(self):
 
@@ -82,7 +83,7 @@ class Component(ComponentBase):
     def get_dates_between(start_date, end_date):
         dates = []
         current_date = start_date
-        while current_date <= end_date:
+        while current_date < end_date:
             date_str = current_date.strftime('%Y-%m-%d')
             dates.append(date_str)
             current_date += timedelta(days=1)
@@ -116,7 +117,7 @@ class Component(ComponentBase):
 
         folder = main_folder_path + date_of_processing
         if not folder.startswith("/"):
-            folder = "/"+folder
+            folder = "/" + folder
 
         if folder_suffix:
             folder = folder + folder_suffix
@@ -167,7 +168,7 @@ class Component(ComponentBase):
         try:
             onedrive_folder = self.sharepoint_drive.get_item_by_path(folder_name)
         except requests.exceptions.HTTPError:
-            logging.info(f"Folder {folder_name} not found on server.")
+            logging.warning(f"Folder {folder_name} not found on server.")
             onedrive_folder = None
 
         if onedrive_folder:
@@ -178,7 +179,8 @@ class Component(ComponentBase):
                     file = self.sharepoint_drive.get_item_by_path(file_path)
                     file.download(to_path=self.files_out_path)
 
-                    file_def = self.create_out_file_definition(name=f.name, tags=["chatbot_analytics"])
+                    file_def = self.create_out_file_definition(name=f.name, tags=["chatbot_analytics",
+                                                                                  f"source_path: {file_path}"])
                     self.write_manifest(file_def)
 
     @staticmethod

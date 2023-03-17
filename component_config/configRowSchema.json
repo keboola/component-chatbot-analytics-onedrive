@@ -26,9 +26,9 @@
       },
     "date_to": {
         "type": "string",
-        "title": "Date To",
+        "title": "Date To [EXCLUSIVE]",
         "default": "today",
-        "description": "Enter relative day (X days ago) or specific date in YYYY-MM-DD format.",
+        "description": "Relative date (X days ago) or specific date in YYYY-MM-DD format.",
         "propertyOrder": 4
       },
         "folder_suffix": {
