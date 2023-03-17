@@ -166,7 +166,7 @@ class Component(ComponentBase):
         try:
             onedrive_folder = self.sharepoint_drive.get_item_by_path(folder_name)
         except requests.exceptions.HTTPError:
-            logging.info(f"Folder {folder_name} not found on server.")
+            logging.warning(f"Folder {folder_name} not found on server.")
             onedrive_folder = None
 
         if onedrive_folder:
