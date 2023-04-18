@@ -1,7 +1,8 @@
 KBC Component
 =============
 
-Description
+This is a custom component for CSAS that downloads/uploads spreadsheets from/into SharePoint.
+
 
 **Table of contents:**
 
