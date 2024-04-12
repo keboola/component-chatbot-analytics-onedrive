@@ -95,7 +95,7 @@ class Component(ComponentBase):
         return date(year, month, day)
 
     def get_input_files(self):
-        files = self.get_input_files_definitions(only_latest_files=True, tags=["chatbot_analytics"])
+        files = self.get_input_files_definitions(only_latest_files=True)
         return files
 
     @staticmethod
@@ -124,10 +124,10 @@ class Component(ComponentBase):
 
         if operation_type == "upload":
             files = self.get_input_files()
+            logging.debug(f"Found {len(files)}")
             for file in files:
-                filename_date = self.extract_date(file.name)
-                if self.subtract_one_day(date_of_processing) == filename_date:
-                    self.upload(folder_name=folder, file=file)
+                self.upload(folder_name=folder, file=file)
+
         elif operation_type == "download":
             self.download(folder_name=folder)
         else:
