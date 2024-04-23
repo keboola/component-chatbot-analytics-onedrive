@@ -28,6 +28,7 @@ KEY_MAIN_FOLDER_PATH = 'main_folder_path'
 KEY_OPERATION_TYPE = 'operation_type'
 KEY_DATE_FROM = 'date_from'
 KEY_DATE_TO = 'date_to'
+KEY_FILTER_DAY = 'filter_day'
 
 # list of mandatory parameters => if some is missing,
 # component will fail with readable message on initialization.
@@ -55,6 +56,7 @@ class Component(ComponentBase):
         sharepoint_params = params[KEY_SHAREPOINT]
         o365_params = params[KEY_O365]
         folder_suffix = params[KEY_FOLDER_SUFFIX]
+        filter_day = params.get(KEY_FILTER_DAY)
 
         # create temp folder to store the token file in. The token name is random.
         self.create_temp_folder()
@@ -77,7 +79,7 @@ class Component(ComponentBase):
         days_to_process = self.get_dates_between(start_date, end_date)
         for day in days_to_process:
             logging.info(f"Processing date: {day}")
-            self.process_files(day, operation_type, main_folder_path, folder_suffix)
+            self.process_files(day, operation_type, main_folder_path, folder_suffix, filter_day)
 
     @staticmethod
     def get_dates_between(start_date, end_date):
@@ -95,7 +97,7 @@ class Component(ComponentBase):
         return date(year, month, day)
 
     def get_input_files(self):
-        files = self.get_input_files_definitions(only_latest_files=True, tags=["chatbot_analytics"])
+        files = self.get_input_files_definitions(only_latest_files=True)
         return files
 
     @staticmethod
@@ -113,7 +115,7 @@ class Component(ComponentBase):
         else:
             return None
 
-    def process_files(self, date_of_processing, operation_type, main_folder_path, folder_suffix):
+    def process_files(self, date_of_processing, operation_type, main_folder_path, folder_suffix, filter_day):
 
         folder = main_folder_path + date_of_processing
         if not folder.startswith("/"):
@@ -124,10 +126,17 @@ class Component(ComponentBase):
 
         if operation_type == "upload":
             files = self.get_input_files()
+            logging.debug(f"Found {len(files)}")
             for file in files:
-                filename_date = self.extract_date(file.name)
-                if self.subtract_one_day(date_of_processing) == filename_date:
+                if filter_day:
+                    filename_date = self.extract_date(file.name)
+                    if self.subtract_one_day(date_of_processing) == filename_date:
+                        self.upload(folder_name=folder, file=file)
+
                     self.upload(folder_name=folder, file=file)
+                else:
+                    self.upload(folder_name=folder, file=file)
+
         elif operation_type == "download":
             self.download(folder_name=folder)
         else:
