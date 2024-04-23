@@ -31,6 +31,14 @@
         "description": "Relative date (X days ago) or specific date in YYYY-MM-DD format.",
         "propertyOrder": 4
       },
+    "filter_day": {
+        "type": "boolean",
+        "format": "checkbox",
+        "title": "Filter files by date created",
+        "default": "true",
+        "description": "When set to true, this option creates a folder for each day within the selected period and uploads files for that specific day. When set to false, it uploads all files from the input mapping regardless of the date created. Use this setting only for periods of one day to prevent duplicity.",
+        "propertyOrder": 4
+      },
         "folder_suffix": {
         "type": "string",
         "title": "Folder Suffix",
